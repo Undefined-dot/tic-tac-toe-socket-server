@@ -28,19 +28,20 @@ sio = socketio.AsyncServer(
 )
 socket_app = socketio.ASGIApp(sio)
 
-# Monter le serveur Socket.IO sur l'application FastAPI
-app.mount("/", socket_app)
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Monitoring GAME SOCKET API By RELOU"}
+
+# Monter le serveur Socket.IO sur l'application FastAPI
+app.mount("/", socket_app)
 
 # Fonction pour envoyer un ID aléatoire toutes les 10 secondes
 async def send_random_id():
     while True:
         random_id = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
         await sio.emit('random_id', {'id': random_id})
-        await asyncio.sleep(10)
+        await asyncio.sleep(3)
 
 
 # Événements Socket.IO
@@ -69,4 +70,4 @@ async def startup_event():
 
 # Démarrage du serveur avec uvicorn
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=7000)
+    uvicorn.run("main:app", host="127.0.0.1", port=7000, reload=True)
