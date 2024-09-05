@@ -91,6 +91,22 @@ async def getData(sid, data):
     res = requests.post(url="http://127.0.0.1:5100/get-gamedata", json=dataset_dict)
     response = res.json()
     await sio.emit('get_data_game_data', data=response)
+    
+# GERE LE JEU
+# cete ecouteur permet de sauvegarder la modification d'un  aux utilateurs
+@sio.on('set_data_game')
+async def getData(sid, data):
+    dataset = JSON_Oject()
+    dataset.gameId = data['gameId']
+    dataset.first_user_token = data['first_user_token']
+    dataset.second_user_token = data['second_user_token']
+    dataset.tours = data['tours']
+    
+    # Convertir l'objet JSON_Oject en dictionnaire avant de l'envoyer
+    dataset_dict = json.loads(dataset.toJSON())
+    res = requests.post(url="http://127.0.0.1:5100/update-gamedata", json=dataset_dict)
+    response = res.json()
+    print(response)
 
 # Démarrage de la tâche asynchrone au démarrage de l'application
 @app.on_event("startup")
