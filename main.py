@@ -104,7 +104,10 @@ async def getData(sid, data):
     
     # Convertir l'objet JSON_Oject en dictionnaire avant de l'envoyer
     dataset_dict = json.loads(dataset.toJSON())
-    res = requests.post(url="http://127.0.0.1:5100/update-gamedata", json=dataset_dict)
+    if dataset.second_user_token == "AI":
+        res = requests.post(url="http://127.0.0.1:5100/update-ia-game", json=dataset_dict)
+    else:
+        res = requests.post(url="http://127.0.0.1:5100/update-gamedata", json=dataset_dict)
     response = res.json()
     print(response)
 
