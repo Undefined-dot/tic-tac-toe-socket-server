@@ -8,8 +8,13 @@ import uvicorn
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import requests
+from configuration import FRONTEND_URL, BACKEND_URL
 
 from classType import FormData, JSON_Oject
+
+# definitions des url
+FRONT_URL = str(FRONTEND_URL)
+BACK_URL = str(BACKEND_URL)
 
 # Création de l'application FastAPI
 app = FastAPI()
@@ -25,7 +30,7 @@ app.add_middleware(
 # Création du serveur Socket.IO avec les options CORS
 sio = socketio.AsyncServer(
     async_mode='asgi',
-    cors_allowed_origins=["http://127.0.0.1:5500"],  # Ajoutez ici l'origine de votre frontend
+    cors_allowed_origins=[FRONT_URL],  # Ajoutez ici l'origine de votre frontend
     logger=True,
     engineio_logger=True,
     allow_eio3=True
@@ -73,7 +78,7 @@ async def disconnect(sid):
 @sio.on('game_verification')
 async def verification_event(sid, data):
     dataState :  FormData  = data
-    res = requests.post(url="http://127.0.0.1:5100/game-verification", json=dataState)
+    res = requests.post(url=f"{BACK_URL}/game-verification", json=dataState)
     await sio.emit('game_verification_data', data=res.json())
 
 # GERE LE JEU
@@ -88,7 +93,7 @@ async def getData(sid, data):
     
     # Convertir l'objet JSON_Oject en dictionnaire avant de l'envoyer
     dataset_dict = json.loads(dataset.toJSON())
-    res = requests.post(url="http://127.0.0.1:5100/get-gamedata", json=dataset_dict)
+    res = requests.post(url=f"{BACK_URL}/get-gamedata", json=dataset_dict)
     response = res.json()
     await sio.emit('get_data_game_data', data=response)
     
@@ -104,10 +109,7 @@ async def getData(sid, data):
     
     # Convertir l'objet JSON_Oject en dictionnaire avant de l'envoyer
     dataset_dict = json.loads(dataset.toJSON())
-    if dataset.second_user_token == "AI":
-        res = requests.post(url="http://127.0.0.1:5100/update-ia-game", json=dataset_dict)
-    else:
-        res = requests.post(url="http://127.0.0.1:5100/update-gamedata", json=dataset_dict)
+    res = requests.post(url=f"{BACK_URL}/update-gamedata", json=dataset_dict)
     response = res.json()
     print(response)
 
